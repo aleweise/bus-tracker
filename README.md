@@ -65,4 +65,4 @@ Si quieres una versión más avanzada, puedes:
 
 ## 📞 Soporte
 
-Si necesitas ayuda para configurar Firebase o hacer mejoras, puedo ayudarte paso a paso.
+Alejandro Zbontar 69026882.
