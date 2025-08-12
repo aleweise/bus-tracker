@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo - Rastreador de Bus</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .demo-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .demo-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .btn-secondary {
+            background-color: #007bff;
+        }
+        .btn-secondary:hover {
+            background-color: #0056b3;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .feature {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px;
+            background-color: #e8f5e8;
+            border-radius: 5px;
+            border-left: 4px solid #4CAF50;
+        }
+        .screenshot {
+            max-width: 100%;
+            height: 200px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1>🚌 Demo - Rastreador de Bus Escolar</h1>
+        
+        <p>Una aplicación web gratuita para rastrear el bus escolar en tiempo real usando OpenStreetMap y Supabase.</p>
+        
+        <div class="demo-section">
+            <h2>🎯 Características Principales</h2>
+            <div class="feature">📱 Interfaz móvil amigable</div>
+            <div class="feature">🗺️ Mapas gratuitos (OpenStreetMap)</div>
+            <div class="feature">⚡ Tiempo real con Supabase</div>
+            <div class="feature">🔄 Sincronización entre dispositivos</div>
+            <div class="feature">💰 100% Gratuito</div>
+        </div>
+
+        <div class="demo-section">
+            <h2>🚀 Prueba la Aplicación</h2>
+            <a href="index.html" class="btn">Abrir Aplicación Principal</a>
+            <a href="mapa.html" class="btn btn-secondary">Ver Solo el Mapa</a>
+        </div>
+
+        <div class="demo-section">
+            <h2>📖 Cómo Usar</h2>
+            <div style="text-align: left; max-width: 600px; margin: 0 auto;">
+                <h3>Para el Conductor:</h3>
+                <ol>
+                    <li>Abre la aplicación en su teléfono</li>
+                    <li>Presiona "Iniciar Seguimiento"</li>
+                    <li>Permite el acceso a la ubicación</li>
+                    <li>Mantén la página abierta durante el recorrido</li>
+                </ol>
+
+                <h3>Para los Padres:</h3>
+                <ol>
+                    <li>Abre la aplicación desde cualquier dispositivo</li>
+                    <li>Presiona "Ver Ubicación del Bus"</li>
+                    <li>Ve la ubicación en tiempo real</li>
+                    <li>El mapa se actualiza automáticamente</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>⚙️ Configuración</h2>
+            <p><strong>Modo Básico:</strong> Funciona inmediatamente (mismo dispositivo)</p>
+            <p><strong>Modo Avanzado:</strong> Configura Supabase para uso entre dispositivos</p>
+            <a href="setup-supabase.md" class="btn btn-secondary">Ver Guía de Configuración</a>
+        </div>
+
+        <div class="demo-section">
+            <h2>🔗 Enlaces Útiles</h2>
+            <a href="https://supabase.com" target="_blank" class="btn btn-secondary">Supabase</a>
+            <a href="https://www.openstreetmap.org" target="_blank" class="btn btn-secondary">OpenStreetMap</a>
+            <a href="https://leafletjs.com" target="_blank" class="btn btn-secondary">Leaflet</a>
+        </div>
+    </div>
+</body>
+</html>

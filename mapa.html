@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ubicación del Bus</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+        .info-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            z-index: 1000;
+            max-width: 300px;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        .status.active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status.inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .refresh-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .refresh-btn:hover {
+            background-color: #0056b3;
+        }
+        .bus-marker {
+            background-color: #FFD700;
+            border: 3px solid #FF6B00;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="info-panel">
+        <h3>🚌 Ubicación del Bus</h3>
+        <div id="status" class="status inactive">Sin datos</div>
+        <div id="lastUpdate"></div>
+        <button class="refresh-btn" onclick="refreshLocation()">Actualizar</button>
+    </div>
+    
+    <div id="map"></div>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Supabase JavaScript SDK -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    
+    <script>
+        let map;
+        let busMarker;
+        let refreshInterval;
+        let subscription;
+
+        // Inicializar mapa cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            setupRealtimeSubscription();
+        });
+
+        function initMap() {
+            // Ubicación por defecto (puedes cambiarla por tu ciudad)
+            const defaultLocation = [-34.6037, -58.3816]; // Buenos Aires [lat, lng]
+            
+            // Crear el mapa
+            map = L.map('map').setView(defaultLocation, 15);
+            
+            // Agregar capa de OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Crear icono personalizado para el bus
+            const busIcon = L.divIcon({
+                className: 'bus-marker',
+                html: '🚌',
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            });
+
+            // Crear marcador del bus
+            busMarker = L.marker(defaultLocation, {
+                icon: busIcon,
+                title: 'Bus Escolar'
+            }).addTo(map);
+
+            // Cargar ubicación inicial
+            refreshLocation();
+        }
+
+        async function setupRealtimeSubscription() {
+            // Suscribirse a cambios en tiempo real
+            subscription = supabase
+                .channel('bus_locations')
+                .on('postgres_changes', {
+                    event: '*',
+                    schema: 'public',
+                    table: 'bus_locations',
+                    filter: `bus_id=eq.${BUS_ID}`
+                }, (payload) => {
+                    console.log('Cambio detectado:', payload);
+                    if (payload.new) {
+                        updateMapWithLocation(payload.new);
+                    }
+                })
+                .subscribe();
+        }
+
+        async function refreshLocation() {
+            try {
+                // Obtener ubicación más reciente de Supabase
+                const { data, error } = await supabase
+                    .from('bus_locations')
+                    .select('*')
+                    .eq('bus_id', BUS_ID)
+                    .order('updated_at', { ascending: false })
+                    .limit(1);
+
+                if (error) {
+                    console.error('Error al obtener ubicación:', error);
+                    // Fallback a localStorage
+                    const locationData = localStorage.getItem('busLocation');
+                    if (locationData) {
+                        const location = JSON.parse(locationData);
+                        updateMapWithLocation(location);
+                    } else {
+                        showOfflineStatus();
+                    }
+                    return;
+                }
+
+                if (data && data.length > 0) {
+                    updateMapWithLocation(data[0]);
+                } else {
+                    showOfflineStatus();
+                }
+            } catch (error) {
+                console.error('Error de conexión:', error);
+                showOfflineStatus();
+            }
+        }
+
+        function updateMapWithLocation(location) {
+            if (location.is_active && location.lat && location.lng) {
+                const busPosition = [location.lat, location.lng];
+                
+                // Actualizar marcador
+                busMarker.setLatLng(busPosition);
+                map.setView(busPosition, map.getZoom());
+                
+                // Actualizar estado
+                document.getElementById('status').textContent = 'Bus en línea';
+                document.getElementById('status').className = 'status active';
+                
+                const updateTime = new Date(location.updated_at).toLocaleTimeString();
+                document.getElementById('lastUpdate').textContent = `Última actualización: ${updateTime}`;
+            } else {
+                showOfflineStatus();
+            }
+        }
+
+        function showOfflineStatus() {
+            document.getElementById('status').textContent = 'Bus sin conexión';
+            document.getElementById('status').className = 'status inactive';
+            document.getElementById('lastUpdate').textContent = 'No hay datos disponibles';
+        }
+
+        // Limpiar suscripción cuando se cierre la página
+        window.addEventListener('beforeunload', function() {
+            if (subscription) {
+                supabase.removeChannel(subscription);
+            }
+        });
+    </script>
+</body>
+</html>
